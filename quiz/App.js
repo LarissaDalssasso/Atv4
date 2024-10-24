@@ -1,7 +1,7 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useState, useEffect } from 'react';
-import { Platform, Text, View, StyleSheet ,Button} from 'react-native';
+import { Platform, Text, View, StyleSheet, Button } from 'react-native';
 import * as Location from 'expo-location';
 import axios from 'axios';
 
@@ -17,13 +17,13 @@ function TelaInicial({ route, navigation }) {
             const url = `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`;
             console.log(url)
             try {
-                const response = await axios.get(url,{
-                    headers:{
-                        'User-Agent':'YourAppName/1.0'
+                const response = await axios.get(url, {
+                    headers: {
+                        'User-Agent': 'YourAppName/1.0'
                     }
                 })
                 const address = response.data.address
-                
+
                 if (address && address.country) {
                     return address.country; // Retorna o nome do país
                 }
@@ -38,30 +38,23 @@ function TelaInicial({ route, navigation }) {
                 setErrorMsg('Sem premissão');
                 return;
             }
-            let location = await Location.getCurrentPositionAsync({})            
+            let location = await Location.getCurrentPositionAsync({})
             const lat = location.coords.latitude;
             const long = location.coords.longitude;
             const alt = location.coords.altitude;
             setLatitude(lat);
             setLongitude(long);
             setAltitude(alt);
-            setPais( await buscarPais( lat, long ) )
+            setPais(await buscarPais(lat, long))
         }
         buscarCoordendadas()
     }, [])
 
     return (
         <View style={styles.container}>
-            <Text style={styles.paragraph}>Coordenadas</Text>
-            <Text style={styles.paragraph}>Latitude: {latitude!=0?latitude:"..."}</Text>
-            <Text style={styles.paragraph}>Longitude: {longitude!=0?longitude:"..."}</Text>
-            <Text style={styles.paragraph}>Altitude: {altitude!=0?altitude:"..."}</Text>
-            <Text style={styles.paragraph}></Text>
-            <Text style={styles.paragraph}>Você esta no hemisfério {latitude<0?"Sul":"Norte"}</Text>
-            <Text style={styles.paragraph}>Você esta no hemisfério {longitude<0?"Ocidental":"Oriental"}</Text>
-            <Text style={styles.paragraph}></Text>
-            <Text style={styles.paragraph}>{pais?pais:"Carregando..."}</Text>
-            <Button title="QUIZ" color="#436" onPress={() => { navigation.navigate("VisualizarUsuario", { 'id': us.id }) }}></Button>
+            <Text style={styles.title}>Teste seus conhecimentos e descubra o quanto você sabe sobre o mundo!</Text>
+            <Text style={styles.texto}>{pais ? pais : "Carregando..."}</Text>
+            <Button title="PERGUNTAS" color="#523C20" onPress={() => { navigation.navigate("VisualizarQuiz") }}></Button>
         </View>
     );
 }
@@ -69,41 +62,59 @@ function TelaInicial({ route, navigation }) {
 function VisualizarQuiz({ route, navigation }) {
 
     const [user, setUser] = useState({})
-    useEffect(() => {//requisicao
-        fetch(`${URL_API}/${route.params.id}`)
-            .then(response => response.json())
-            .then(json => { setUser(json) })
-            .catch(() => { Alert.alert("Erro", "Não foi possível carregar página") })
-    }, [route.params.id])
 
     return (
 
-            <View style={styles.container}>
-                <Text style={styles.title}>Brasil</Text>
-                <Text>Perguntas</Text>
-                
+        <View style={styles.container}>
+            <Text style={styles.title}>Brasil</Text>
+            <View style={styles.cardContainer}>
+                <View>
+                   
+                </View>
             </View>
+            <Button title="Finalizar QUIZ" color="#523C20" onPress={() => { navigation.navigate("VisualizarResultado") }}></Button>
+            <Text>Perguntas</Text>
+
+        </View>
+    )
+}
+function VisualizarResultado({ route, navigation }) {
+
+    const [user, setUser] = useState({})
+
+    return (
+
+        <View style={styles.container}>
+            <Text style={styles.title}>Brasil</Text>
+            <Text>Perguntas</Text>
+            <Button title="Voltar" color="#523C20" onPress={() => { navigation.navigate("TelaInicial") }}></Button>
+        </View>
     )
 }
 
- export default function App() {
-        return (
-            <NavigationContainer>
-                <PilhasTelas.Navigator>
-                    <PilhasTelas.Screen
-                        name="TelaInicial"
-                        component={TelaInicial}
-                        options={{ title: "Tela Inicial" }}
-                    ></PilhasTelas.Screen>
-                    <PilhasTelas.Screen
-                        name="VisualizarQuiz"
-                        component={VisualizarQuiz}
-                        options={{ title: "Visualizar Quiz" }}
-                    ></PilhasTelas.Screen>
-                </PilhasTelas.Navigator>
-            </NavigationContainer>
-        )
-    }
+export default function App() {
+    return (
+        <NavigationContainer>
+            <PilhasTelas.Navigator>
+                <PilhasTelas.Screen
+                    name="TelaInicial"
+                    component={TelaInicial}
+                    options={{ title: "Home" }}
+                ></PilhasTelas.Screen>
+                <PilhasTelas.Screen
+                    name="VisualizarQuiz"
+                    component={VisualizarQuiz}
+                    options={{ title: "Quiz" }}
+                ></PilhasTelas.Screen>
+                <PilhasTelas.Screen
+                    name="VisualizarResultado"
+                    component={VisualizarResultado}
+                    options={{ title: "Resultado" }}
+                ></PilhasTelas.Screen>
+            </PilhasTelas.Navigator>
+        </NavigationContainer>
+    )
+}
 
 const styles = StyleSheet.create({
     container: {
@@ -111,10 +122,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         padding: 20,
-    },
-    paragraph: {
-        fontSize: 18,
-        textAlign: 'center',
+        backgroundColor: '#EFE5D8',
     },
     cardContainer: {
         width: "90%",
@@ -126,5 +134,13 @@ const styles = StyleSheet.create({
         padding: 10,
         flexDirection: "row",
         justifyContent: "space-between"
+    },
+    title: {
+        fontSize: 25,
+        textAlign: 'center',
+    },
+    texto: {
+        fontSize: 20,
+        textAlign: 'center',
     }
 });
