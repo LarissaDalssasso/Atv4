@@ -8,18 +8,18 @@ import axios from 'axios';
 const PilhasTelas = createNativeStackNavigator()
 
 function TelaInicial({ route, navigation }) {
-    const [latitude, setLatitude] = useState(0.0)
-    const [longitude, setLongitude] = useState(0.0)
-    const [altitude, setAltitude] = useState(0.0)
-    const [pais, setPais] = useState("")
+    const [latitude, setLatitude] = useState(0.0);
+    const [longitude, setLongitude] = useState(0.0);
+    const [altitude, setAltitude] = useState(0.0);
+    const [pais, setPais] = useState("");
+
     useEffect(() => {
-        var buscarPais = async (latitude, longitude) => {
+        const buscarPais = async (latitude, longitude) => {
             const url = `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`;
-            console.log(url)
             try {
                 const response = await axios.get(url, {
                     headers: {
-                        'User-Agent': 'YourAppName/1.0'
+                        'User -Agent': 'YourAppName/1.0'
                     }
                 });
                 const address = response.data.address;
@@ -31,18 +31,14 @@ function TelaInicial({ route, navigation }) {
                 console.error(error);
             }
             return null;
-        }
-        var buscarCoordendadas = async () => {
         };
 
         const buscarCoordenadas = async () => {
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
-                setErrorMsg('Sem premissão');
                 console.error('Sem permissão');
                 return;
             }
-            let location = await Location.getCurrentPositionAsync({})
             let location = await Location.getCurrentPositionAsync({});
             const lat = location.coords.latitude;
             const long = location.coords.longitude;
@@ -50,10 +46,6 @@ function TelaInicial({ route, navigation }) {
             setLatitude(lat);
             setLongitude(long);
             setAltitude(alt);
-            setPais(await buscarPais(lat, long))
-        }
-        buscarCoordendadas()
-    }, [])
             setPais(await buscarPais(lat, long));
         };
         
