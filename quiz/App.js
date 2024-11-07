@@ -10,7 +10,11 @@ const PilhasTelas = createNativeStackNavigator()
 function escolherPais(pais) {
     if (pais == "Brasil") {
         navigation.navigate("VisualizarQuizBrasil")
-    }else
+    }else if(pais == "Russia"){
+        navigation.navigate("VisualizarQuizRussia")
+    }else if(pais == "Russia"){
+        navigation.navigate("VisualizarQuizChina")
+    }
 }
 
 function TelaInicial({ route, navigation }) {
@@ -277,7 +281,7 @@ function VisualizarQuizRussia({ route, navigation }) {
     );
 }
 
-// Perguntas da China
+// Perguntas da Japao
 function VisualizarQuizChina({ route, navigation }) {
     const [respostasSelecionadas, setRespostasSelecionadas] = useState([null, null, null]);
 
@@ -369,46 +373,6 @@ function VisualizarQuizChina({ route, navigation }) {
     );
 }
 
-function VisualizarResultado({ route, navigation }) {
-    const { resultado } = route.params; // Pegando os resultados passados
-
-    return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Resultado do Quiz</Text>
-            <Text style={styles.resultado}>
-                Você selecionou: <Text style={resultado.correta ? styles.correto : styles.incorreto}>{resultado.respostaSelecionada}</Text>
-            </Text>
-            <Text style={styles.resultado}>
-                Resultado: <Text style={resultado.correta ? styles.correto : styles.incorreto}>{resultado.correta ? 'Correto!' : 'Incorreto!'}</Text>
-            </Text>
-            <Button
-                title="Voltar"
-                color="#523C20"
-                onPress={() => navigation.navigate("TelaInicial")}
-            />
-        </View>
-    );
-}
-function VisualizarResultado({ route, navigation }) {
-    const { resultado } = route.params; // Pegando os resultados passados
-
-    return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Resultado do Quiz</Text>
-            <Text style={styles.resultado}>
-                Você selecionou: <Text style={resultado.correta ? styles.correto : styles.incorreto}>{resultado.respostaSelecionada}</Text>
-            </Text>
-            <Text style={styles.resultado}>
-                Resultado: <Text style={resultado.correta ? styles.correto : styles.incorreto}>{resultado.correta ? 'Correto!' : 'Incorreto!'}</Text>
-            </Text>
-            <Button
-                title="Voltar"
-                color="#523C20"
-                onPress={() => navigation.navigate("TelaInicial")}
-            />
-        </View>
-    );
-}
 
 function VisualizarResultado({ route, navigation }) {
     const { resultado } = route.params; // Pegando os resultados passados
@@ -430,6 +394,8 @@ function VisualizarResultado({ route, navigation }) {
         </View>
     );
 }
+
+
 
 export default function App() {
     return (
