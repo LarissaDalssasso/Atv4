@@ -7,13 +7,15 @@ import axios from 'axios';
 
 const PilhasTelas = createNativeStackNavigator()
 
-function escolherPais(pais) {
+function escolherPais(navigation, pais) {
     if (pais == "Brasil") {
         navigation.navigate("VisualizarQuizBrasil")
-    }else if(pais == "Russia"){
+    } else if (pais == "Russia") {
         navigation.navigate("VisualizarQuizRussia")
-    }else if(pais == "Russia"){
-        navigation.navigate("VisualizarQuizChina")
+    } else if (pais == "日本") {
+        navigation.navigate("VisualizarQuizJapao")
+    } else {
+        console.log(pais + " sem perguntas")
     }
 }
 
@@ -26,14 +28,16 @@ function TelaInicial({ route, navigation }) {
     useEffect(() => {
         const buscarPais = async (latitude, longitude) => {
             const url = `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`;
+            console.log(url);
+
             try {
                 const response = await axios.get(url, {
                     headers: {
                         'User -Agent': 'YourAppName/1.0'
                     }
                 });
+                console.log(response.data);
                 const address = response.data.address;
-
                 if (address && address.country) {
                     return address.country; // Retorna o nome do país
                 }
@@ -64,13 +68,13 @@ function TelaInicial({ route, navigation }) {
 
     return (
         <ImageBackground
-            source={{ uri: 'https://www.bing.com/images/create/criar-uma-imagem-com-vc3a1rias-bandeiras-de-pac3adses/1-6723cc66cc2246d59dd9b59a86807c0f?id=E6ps9spMDcSzhUbwGWsEpw%3d%3d&view=detailv2&idpp=genimg&thId=OIG4.28k16fiW7VzKYikmhsDv&skey=4MPIyCbLw4Dqq4CQuYNgDcegn8X_wZG2uvyJvvYKaPA&FORM=GCRIDP&mode=overlay' }} // Substitua pela URL da sua imagem
+            source={{ uri: 'https://th.bing.com/th/id/OIG4.28k16fiW7VzKYikmhsDv?pid=ImgGn' }} // Substitua pela URL da sua imagem
             style={styles.backgroundInicial}
         >
             <View style={styles.containerInicial}>
                 <Text style={styles.titleInicial}>Teste seus conhecimentos e descubra o quanto você sabe sobre o mundo!</Text>
                 <Text style={styles.textoInicial}>{pais ? pais : "Carregando..."}</Text>
-                <Button title="PERGUNTAS" color="#523C20" onPress={() => { escolherPais(pais) }} />
+                <Button title="PERGUNTAS" color="#523C20" onPress={() => { escolherPais(navigation, pais) }} />
             </View>
         </ImageBackground>
     );
@@ -83,7 +87,7 @@ function VisualizarQuizBrasil({ route, navigation }) {
     // Respostas corretas para cada pergunta
     const respostasCorretas = [
         '38 m', // Resposta correta para a primeira pergunta
-        'A arara-azul', // Resposta correta para a segunda pergunta
+        'A arara-azul',
         'Em tigelas'
     ];
 
@@ -158,12 +162,14 @@ function VisualizarQuizBrasil({ route, navigation }) {
                     ))}
                 </View>
             </View>
-            <Button
-                title="Finalizar QUIZ"
-                color="#523C20"
-                onPress={() => navigation.navigate("VisualizarResultado")}
-                disabled={!respostasSelecionadas[0] || !respostasSelecionadas[1]} // Desabilita o botão até que ambas as respostas sejam selecionadas
-            />
+            <View style={styles.botao}>
+                <Button
+                    title="Finalizar QUIZ"
+                    onPress={() => navigation.navigate("VisualizarResultado")}
+                    disabled={!respostasSelecionadas[0] || !respostasSelecionadas[1]} // Desabilita o botão até que ambas as respostas sejam selecionadas
+                />
+            </View>
+
         </ScrollView>
     );
 }
@@ -224,7 +230,7 @@ function VisualizarQuizRussia({ route, navigation }) {
                                 respostasSelecionadas[1] === resposta && { backgroundColor: resposta === respostasCorretas[1] ? 'green' : 'red' },
                             ]}
                             onPress={() => respostaEscolhida(resposta, 1)}
-                            disabled={!!respostasSelecionadas[1]} 
+                            disabled={!!respostasSelecionadas[1]}
                         >
                             <Text style={styles.alternativa}>{resposta}</Text>
                         </TouchableOpacity>
@@ -244,7 +250,7 @@ function VisualizarQuizRussia({ route, navigation }) {
                                 respostasSelecionadas[2] === resposta && { backgroundColor: resposta === respostasCorretas[2] ? 'green' : 'red' },
                             ]}
                             onPress={() => respostaEscolhida(resposta, 2)}
-                            disabled={!!respostasSelecionadas[2]} 
+                            disabled={!!respostasSelecionadas[2]}
                         >
                             <Text style={styles.alternativa}>{resposta}</Text>
                         </TouchableOpacity>
@@ -254,7 +260,7 @@ function VisualizarQuizRussia({ route, navigation }) {
             {/* Quarta Pergunta */}
             <View style={styles.cardContainer}>
                 <Text style={styles.pergunta}>As bonecas russas famosas por serem feitas de madeira e por se encaixam uma dentro da outra são conhecidas como?</Text>
-                <Image style={styles.image} source={require('./assets/images/animalRussia.jpg')} />
+                <Image style={styles.image} source={require('./assets/images/boneca.jpg')} />
                 <View style={styles.alternativas}>
                     {['Matryoshka', 'Babushka', 'Troika', 'Ushanka'].map((resposta, index) => (
                         <TouchableOpacity
@@ -282,14 +288,15 @@ function VisualizarQuizRussia({ route, navigation }) {
 }
 
 // Perguntas da Japao
-function VisualizarQuizChina({ route, navigation }) {
-    const [respostasSelecionadas, setRespostasSelecionadas] = useState([null, null, null]);
+function VisualizarQuizJapao({ route, navigation }) {
+    const [respostasSelecionadas, setRespostasSelecionadas] = useState([null, null, null, null]);
 
     // Respostas corretas para cada pergunta
     const respostasCorretas = [
-        '38 m', // Resposta correta para a primeira pergunta
-        'A arara-azul', // Resposta correta para a segunda pergunta
-        'Em tigelas'
+        'Admirar as flores de cerejeira',
+        'Tsuru (grou)',
+        'Hiroshima e Nagasaki',
+        'Em várias ocasiões formais '
     ];
 
     const respostaEscolhida = (resposta, index) => {
@@ -301,14 +308,15 @@ function VisualizarQuizChina({ route, navigation }) {
     };
 
     return (
-        <ScrollView style={styles.container}>
-            <Text style={styles.title}>Brasil</Text>
+        <ScrollView style={styles.container1}>
+            <View style={styles.container}>
+            <Text style={styles.title}>Japão</Text>
             {/* Primeira Pergunta */}
             <View style={styles.cardContainer}>
-                <Text style={styles.pergunta}>Quantos metros têm a estátua mais famosa do Brasil?</Text>
-                <Image style={styles.image} source={require('./assets/images/cristo-redentor.jpg')} />
+                <Text style={styles.pergunta}>O Japão é conhecido pelo conceito de "hanami", uma tradição ligada à natureza e celebrada especialmente na primavera. O que as pessoas costumam fazer durante o hanami?</Text>
+                <Image style={styles.image} source={require('./assets/images/cerejeira.jpg')} />
                 <View style={styles.alternativas}>
-                    {['35 m', '38 m', '50 m', '46 m'].map((resposta, index) => (
+                    {['Admirar as flores de cerejeira', 'Correr pelas montanhas', 'Plantar árvores', 'Meditar nas praias'].map((resposta, index) => (
                         <TouchableOpacity
                             key={resposta}
                             style={[
@@ -325,10 +333,10 @@ function VisualizarQuizChina({ route, navigation }) {
             </View>
             {/* Segunda Pergunta */}
             <View style={styles.cardContainer}>
-                <Text style={styles.pergunta}>Qual animal é considerado o símbolo nacional do Brasil?</Text>
-                <Image style={styles.image} source={require('./assets/images/animais.jpg')} />
+                <Text style={styles.pergunta}>O origami é uma arte japonesa de dobradura de papel. Qual figura é considerada um símbolo de paz e esperança e é uma das dobraduras mais conhecidas no origami?</Text>
+                <Image style={styles.image} source={require('./assets/images/Origami.jpg')} />
                 <View style={styles.alternativas}>
-                    {['O lobo-guará', 'O tamanduá-bandeira', 'O jaguar', 'A arara-azul'].map((resposta, index) => (
+                    {['Tigre', 'Dragão', 'Tsuru (grou)', 'Golfinho'].map((resposta, index) => (
                         <TouchableOpacity
                             key={resposta}
                             style={[
@@ -345,10 +353,10 @@ function VisualizarQuizChina({ route, navigation }) {
             </View>
             {/* Terceira Pergunta */}
             <View style={styles.cardContainer}>
-                <Text style={styles.pergunta}>O açaí é uma fruta típica da região amazônica do Brasil, conhecida por seu sabor e benefícios nutricionais. Qual é a forma mais comum de consumo do açaí nas regiões do Norte do Brasil?</Text>
-                <Image style={styles.image} source={require('./assets/images/acai.jpg')} />
+                <Text style={styles.pergunta}>Durante a Segunda Guerra Mundial, duas cidades japonesas foram devastadas por bombas nucleares, um evento que marcou profundamente a história mundial. Quais foram essas duas cidades?</Text>
+                <Image style={styles.image} source={require('./assets/images/cidadeJp.jpg')} />
                 <View style={styles.alternativas}>
-                    {['Em sucos', 'Em sorvetes', 'Em tigelas', 'Em smoothies'].map((resposta, index) => (
+                    {['Tóquio e Osaka', ' Hiroshima e Nagasaki', 'Kyoto e Kobe', 'Yokohama e Fukuoka'].map((resposta, index) => (
                         <TouchableOpacity
                             key={resposta}
                             style={[
@@ -363,12 +371,33 @@ function VisualizarQuizChina({ route, navigation }) {
                     ))}
                 </View>
             </View>
-            <Button
-                title="Finalizar QUIZ"
-                color="#523C20"
-                onPress={() => navigation.navigate("VisualizarResultado")}
-                disabled={!respostasSelecionadas[0] || !respostasSelecionadas[1]} // Desabilita o botão até que ambas as respostas sejam selecionadas
-            />
+            {/* Quarta Pergunta */}
+            <View style={styles.cardContainer}>
+                <Text style={styles.pergunta}>O "kimono" é um traje tradicional japonês reconhecido mundialmente por sua beleza e significado cultural. Qual é a ocasião em que os japoneses costumam usar kimonos?</Text>
+                <Image style={styles.image} source={require('./assets/images/kimono.jpg')} />
+                <View style={styles.alternativas}>
+                    {['Somente em casamentos', 'Apenas em festivais de verão', 'Em várias ocasiões formais ', 'Exclusivamente no Ano Novo'].map((resposta, index) => (
+                        <TouchableOpacity
+                            key={resposta}
+                            style={[
+                                styles.cardContainer2,
+                                respostasSelecionadas[3] === resposta && { backgroundColor: resposta === respostasCorretas[3] ? 'green' : 'red' },
+                            ]}
+                            onPress={() => respostaEscolhida(resposta, 3)}
+                            disabled={!!respostasSelecionadas[3]} // Desabilita o TouchableOpacity após uma seleção
+                        >
+                            <Text style={styles.alternativa}>{resposta}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+                <View style={styles.container}>
+                <Button
+                    title="Finalizar QUIZ"
+                    color="black"
+                    onPress={() => navigation.navigate("VisualizarResultado")}
+                    disabled={!respostasSelecionadas[0] || !respostasSelecionadas[1]} // Desabilita o botão até que ambas as respostas sejam selecionadas
+                /></View>
+            </View></View>
         </ScrollView>
     );
 }
@@ -417,8 +446,8 @@ export default function App() {
                     options={{ title: "Quiz" }}
                 ></PilhasTelas.Screen>
                 <PilhasTelas.Screen
-                    name="VisualizarQuizChina"
-                    component={VisualizarQuizChina}
+                    name="VisualizarQuizJapao"
+                    component={VisualizarQuizJapao}
                     options={{ title: "Quiz" }}
                 ></PilhasTelas.Screen>
                 <PilhasTelas.Screen
@@ -434,8 +463,9 @@ export default function App() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
+      padding:20,
         backgroundColor: '#fff',
+        justifyContent:"center",
     },
     title: {
         fontSize: 24,
@@ -457,7 +487,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     alternativas: {
-        marginBottom: 20,
+        marginBottom: 5,
     },
     cardContainer2: {
         padding: 15,
@@ -504,4 +534,13 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 20,
     },
+    botao: {
+        flex: 1,
+        justifyContent: "center",
+
+   
+        backgroundColor: "#523C20",
+        marginBottom:15,
+        width:'85%'
+    }
 });
