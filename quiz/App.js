@@ -82,13 +82,14 @@ function TelaInicial({ route, navigation }) {
 
 // perguntas do Brasil
 function VisualizarQuizBrasil({ route, navigation }) {
-    const [respostasSelecionadas, setRespostasSelecionadas] = useState([null, null, null]);
+    const [respostasSelecionadas, setRespostasSelecionadas] = useState([null, null, null, null]);
 
     // Respostas corretas para cada pergunta
     const respostasCorretas = [
         '38 m', // Resposta correta para a primeira pergunta
         'A arara-azul',
-        'Em tigelas'
+        'Em tigelas',
+        'Cataratas do Iguaçu'
     ];
 
     const respostaEscolhida = (resposta, index) => {
@@ -163,10 +164,30 @@ function VisualizarQuizBrasil({ route, navigation }) {
                         ))}
                     </View>
                 </View>
+                {/* Quarta Pergunta */}
+                <View style={styles.cardContainer}>
+                    <Text style={styles.pergunta}>Quais dessas características naturais são consideradas um dos maiores do Brasil e atraem turistas do mundo inteiro?</Text>
+                    <Image style={styles.image} source={require('./assets/images/agua-no-jalapao.jpg')} />
+                    <View style={styles.alternativas}>
+                        {['Encontro das Águas', 'Floresta Amazônica', 'Parque Nacional dos Lençóis Maranhenses', 'Cataratas do Iguaçu'].map((resposta, index) => (
+                            <TouchableOpacity
+                                key={resposta}
+                                style={[
+                                    styles.cardContainer2,
+                                    respostasSelecionadas[3] === resposta && { backgroundColor: resposta === respostasCorretas[3] ? 'green' : 'red' },
+                                ]}
+                                onPress={() => respostaEscolhida(resposta, 3)}
+                                disabled={!!respostasSelecionadas[3]} // Desabilita o TouchableOpacity após uma seleção
+                            >
+                                <Text style={styles.alternativa}>{resposta}</Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </View>
                 <View style={styles.botao}>
                     <Button
                         title="Finalizar QUIZ"
-                        color="#e63244"
+                        color="#a52a2a"
                         onPress={() => navigation.navigate("VisualizarResultado")}
                         disabled={!respostasSelecionadas[0] || !respostasSelecionadas[1] || !respostasSelecionadas[2] || !respostasSelecionadas[3]} // Desabilita o botão até que ambas as respostas sejam selecionadas
                     />
@@ -408,22 +429,29 @@ function VisualizarQuizJapao({ route, navigation }) {
 }
 
 function VisualizarResultado({ route, navigation }) {
-    const { resultado } = route.params; // Pegando os resultados passados
-
+    // Pegando os resultados passados
+    const [resultados, setResultados] = useState([]);
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Resultado do Quiz</Text>
-            <Text style={styles.resultado}>
-                Você selecionou: <Text style={resultado.correta ? styles.correto : styles.incorreto}>{resultado.respostaSelecionada}</Text>
-            </Text>
-            <Text style={styles.resultado}>
-                Resultado: <Text style={resultado.correta ? styles.correto : styles.incorreto}>{resultado.correta ? 'Correto!' : 'Incorreto!'}</Text>
-            </Text>
-            <Button
-                title="Voltar"
-                color="#523C20"
-                onPress={() => navigation.navigate("TelaInicial")}
-            />
+            {/* {resultados.map((resultado, index) => (
+                <View key={index} style={styles.resultadoContainer}>
+                    <Text style={styles.pergunta}>Pergunta {index + 1}:</Text>
+                    <Text style={styles.resultado}>
+                        Você selecionou: <Text style={resultado.correta ? styles.correto : styles.incorreto}>{resultado.respostaSelecionada}</Text>
+                    </Text>
+                    <Text style={styles.resultado}>
+                        Resultado: <Text style={resultado.correta ? styles.correto : styles.incorreto}>{resultado.correta ? 'Correto!' : 'Incorreto!'}</Text>
+                    </Text>
+                </View>
+            ))} */}
+            <View style={styles.botao}>
+                <Button
+                    title="Voltar"
+                    color="#523C20"
+                    onPress={() => navigation.navigate("TelaInicial")}
+                />
+            </View>
         </View>
     );
 }
