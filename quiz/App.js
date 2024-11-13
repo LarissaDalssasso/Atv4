@@ -1,42 +1,41 @@
+// Importações e configuração inicial
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useState, useEffect } from 'react';
-import { Platform, Text, View, StyleSheet, Button, Image, TouchableOpacity, ImageBackground, ScrollView } from 'react-native';
+import { Text, View, StyleSheet, Button, Image, TouchableOpacity, ImageBackground, ScrollView } from 'react-native';
 import * as Location from 'expo-location';
 import axios from 'axios';
 
-const PilhasTelas = createNativeStackNavigator()
+const PilhasTelas = createNativeStackNavigator();
 
+// Função para escolher o país
 function escolherPais(navigation, pais) {
-    if (pais == "Brasil") {
-        navigation.navigate("VisualizarQuizBrasil")
-    } else if (pais == "Россия") {
-        navigation.navigate("VisualizarQuizRussia")
-    } else if (pais == "日本") {
-        navigation.navigate("VisualizarQuizJapao")
+    if (pais === "Brasil") {
+        navigation.navigate("VisualizarQuizBrasil");
+    } else if (pais === "Россия") {
+        navigation.navigate("VisualizarQuizRussia");
+    } else if (pais === "日本") {
+        navigation.navigate("VisualizarQuizJapao");
     } else {
-        console.log(pais + " sem perguntas")
+        console.log(pais + " sem perguntas");
     }
 }
 
+// Tela Inicial
 function TelaInicial({ route, navigation }) {
     const [latitude, setLatitude] = useState(0.0);
     const [longitude, setLongitude] = useState(0.0);
-    const [altitude, setAltitude] = useState(0.0);
     const [pais, setPais] = useState("");
 
     useEffect(() => {
         const buscarPais = async (latitude, longitude) => {
             const url = `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`;
-            console.log(url);
-
             try {
                 const response = await axios.get(url, {
                     headers: {
                         'User -Agent': 'YourAppName/1.0'
                     }
                 });
-                console.log(response.data);
                 const address = response.data.address;
                 if (address && address.country) {
                     return address.country; // Retorna o nome do país
@@ -56,10 +55,8 @@ function TelaInicial({ route, navigation }) {
             let location = await Location.getCurrentPositionAsync({});
             const lat = location.coords.latitude;
             const long = location.coords.longitude;
-            const alt = location.coords.altitude;
             setLatitude(lat);
             setLongitude(long);
-            setAltitude(alt);
             setPais(await buscarPais(lat, long));
         };
 
@@ -68,7 +65,7 @@ function TelaInicial({ route, navigation }) {
 
     return (
         <ImageBackground
-            source={{ uri: 'https://th.bing.com/th/id/OIG4.28k16fiW7VzKYikmhsDv?pid=ImgGn' }} // Substitua pela URL da sua imagem
+            source={{ uri: 'https://th.bing.com/th/id/OIG4.28k16fiW7VzKYikmhsDv?pid=ImgGn' }}
             style={styles.backgroundInicial}
         >
             <View style={styles.containerInicial}>
@@ -80,24 +77,37 @@ function TelaInicial({ route, navigation }) {
     );
 }
 
-// perguntas do Brasil
+// Perguntas do Brasil
 function VisualizarQuizBrasil({ route, navigation }) {
     const [respostasSelecionadas, setRespostasSelecionadas] = useState([null, null, null, null]);
 
-    // Respostas corretas para cada pergunta
+    // Respostas corretas e explicações
     const respostasCorretas = [
-        '38 m', // Resposta correta para a primeira pergunta
+        '38 m',
         'A arara-azul',
         'Em tigelas',
         'Cataratas do Iguaçu'
     ];
-
+    const explicacoes = [
+        "A estátua do Cristo Redentor tem 38 metros de altura.",
+        "A arara-azul é um símbolo nacional do Brasil.",
+        "O açaí é comumente consumido em tigelas na região norte.",
+        "As Cataratas do Iguaçu são uma das maiores atrações turísticas do Brasil."
+    ];
     const respostaEscolhida = (resposta, index) => {
         const novasRespostas = [...respostasSelecionadas];
         if (novasRespostas[index] === null) { // Verifica se a resposta para essa pergunta ainda não foi selecionada
             novasRespostas[index] = resposta;
             setRespostasSelecionadas(novasRespostas);
         }
+    };
+    const finalizarQuizBr = () => {
+        const resultados = respostasSelecionadas.map((resposta, index) => ({
+            respostaSelecionada: resposta,
+            correta: resposta === respostasCorretas[index],
+            explicacao: resposta === respostasCorretas[index] ? null : explicacoes[index]
+        }));
+        navigation.navigate("VisualizarResultado", { resultados });
     };
 
     return (
@@ -188,7 +198,7 @@ function VisualizarQuizBrasil({ route, navigation }) {
                     <Button
                         title="Finalizar QUIZ"
                         color="#a52a2a"
-                        onPress={() => navigation.navigate("VisualizarResultado")}
+                        onPress={finalizarQuizBr}
                         disabled={!respostasSelecionadas[0] || !respostasSelecionadas[1] || !respostasSelecionadas[2] || !respostasSelecionadas[3]} // Desabilita o botão até que ambas as respostas sejam selecionadas
                     />
                 </View>
@@ -197,22 +207,35 @@ function VisualizarQuizBrasil({ route, navigation }) {
     );
 }
 
-// Perguntas da Russia
+// Perguntas da Rússia
 function VisualizarQuizRussia({ route, navigation }) {
     const [respostasSelecionadas, setRespostasSelecionadas] = useState([null, null, null, null]);
-    // Respostas corretas para cada pergunta
     const respostasCorretas = [
         'O Lago dos Cisnes',
         'Moscou',
         'Urso',
         'Matryoshka'
     ];
+    const explicacoes = [
+        "O Lago dos Cisnes é um balé clássico famoso.",
+        "Moscou é a capital da Rússia.",
+        "O urso é um símbolo nacional da Rússia.",
+        "Matryoshka são as famosas bonecas russas."
+    ];
     const respostaEscolhida = (resposta, index) => {
         const novasRespostas = [...respostasSelecionadas];
-        if (novasRespostas[index] === null) { // Verifica se a resposta para essa pergunta ainda não foi selecionada
+        if (novasRespostas[index] === null) {
             novasRespostas[index] = resposta;
             setRespostasSelecionadas(novasRespostas);
         }
+    };
+    const finalizarQuizRu = () => {
+        const resultados = respostasSelecionadas.map((resposta, index) => ({
+            respostaSelecionada: resposta,
+            correta: resposta === respostasCorretas[index],
+            explicacao: resposta === respostasCorretas[index] ? null : explicacoes[index]
+        }));
+        navigation.navigate("VisualizarResultado", { resultados });
     };
 
     return (
@@ -302,8 +325,8 @@ function VisualizarQuizRussia({ route, navigation }) {
                 <View style={styles.botao}>
                     <Button
                         title="Finalizar QUIZ"
-                        color="#e63244"
-                        onPress={() => navigation.navigate("VisualizarResultado")}
+                        color="#a52a2a"
+                        onPress={finalizarQuizRu}
                         disabled={!respostasSelecionadas[0] || !respostasSelecionadas[1] || !respostasSelecionadas[2] || !respostasSelecionadas[3]} // Desabilita o botão até que ambas as respostas sejam selecionadas
                     />
                 </View>
@@ -312,23 +335,35 @@ function VisualizarQuizRussia({ route, navigation }) {
     );
 }
 
-// Perguntas da Japao
+// Perguntas do Japão
 function VisualizarQuizJapao({ route, navigation }) {
     const [respostasSelecionadas, setRespostasSelecionadas] = useState([null, null, null, null]);
-    // Respostas corretas para cada pergunta
     const respostasCorretas = [
         'Admirar as flores de cerejeira',
         'Tsuru (grou)',
         'Hiroshima e Nagasaki',
         'Em várias ocasiões formais '
     ];
-
+    const explicacoes = [
+        "Hanami é a prática de admirar as flores de cerejeira.",
+        "Tsuru é um símbolo de paz no Japão.",
+        "Hiroshima e Nagasaki foram devastadas por bombas nucleares.",
+        "Kimonos são usados em várias ocasiões formais."
+    ];
     const respostaEscolhida = (resposta, index) => {
         const novasRespostas = [...respostasSelecionadas];
-        if (novasRespostas[index] === null) { // Verifica se a resposta para essa pergunta ainda não foi selecionada
+        if (novasRespostas[index] === null) {
             novasRespostas[index] = resposta;
             setRespostasSelecionadas(novasRespostas);
         }
+    };
+    const finalizarQuizJa = () => {
+        const resultados = respostasSelecionadas.map((resposta, index) => ({
+            respostaSelecionada: resposta,
+            correta: resposta === respostasCorretas[index],
+            explicacao: resposta === respostasCorretas[index] ? null : explicacoes[index]
+        }));
+        navigation.navigate("VisualizarResultado", { resultados });
     };
 
     return (
@@ -380,7 +415,7 @@ function VisualizarQuizJapao({ route, navigation }) {
                     <Text style={styles.pergunta}>Durante a Segunda Guerra Mundial, duas cidades japonesas foram devastadas por bombas nucleares, um evento que marcou profundamente a história mundial. Quais foram essas duas cidades?</Text>
                     <Image style={styles.image} source={require('./assets/images/cidadeJp.jpg')} />
                     <View style={styles.alternativas}>
-                        {['Tóquio e Osaka', ' Hiroshima e Nagasaki', 'Kyoto e Kobe', 'Yokohama e Fukuoka'].map((resposta, index) => (
+                        {['Tóquio e Osaka', 'Hiroshima e Nagasaki', 'Kyoto e Kobe', 'Yokohama e Fukuoka'].map((resposta, index) => (
                             <TouchableOpacity
                                 key={resposta}
                                 style={[
@@ -418,8 +453,8 @@ function VisualizarQuizJapao({ route, navigation }) {
                 <View style={styles.botao}>
                     <Button
                         title="Finalizar QUIZ"
-                        color="#e63244"
-                        onPress={() => navigation.navigate("VisualizarResultado")}
+                        color="#a52a2a"
+                        onPress={finalizarQuizJa}
                         disabled={!respostasSelecionadas[0] || !respostasSelecionadas[1] || !respostasSelecionadas[2] || !respostasSelecionadas[3]} // Desabilita o botão até que ambas as respostas sejam selecionadas
                     />
                 </View>
@@ -429,30 +464,38 @@ function VisualizarQuizJapao({ route, navigation }) {
 }
 
 function VisualizarResultado({ route, navigation }) {
-    // Pegando os resultados passados
-    const [resultados, setResultados] = useState([]);
+    const resultados = route.params?.resultados || [];
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Resultado do Quiz</Text>
-            {/* {resultados.map((resultado, index) => (
-                <View key={index} style={styles.resultadoContainer}>
-                    <Text style={styles.pergunta}>Pergunta {index + 1}:</Text>
-                    <Text style={styles.resultado}>
-                        Você selecionou: <Text style={resultado.correta ? styles.correto : styles.incorreto}>{resultado.respostaSelecionada}</Text>
-                    </Text>
-                    <Text style={styles.resultado}>
-                        Resultado: <Text style={resultado.correta ? styles.correto : styles.incorreto}>{resultado.correta ? 'Correto!' : 'Incorreto!'}</Text>
-                    </Text>
+        <ScrollView style={styles.container1}>
+            <View style={styles.container}>
+                <Text style={styles.title}>Resultado do Quiz</Text>
+                {resultados.length > 0 ? (
+                    resultados.map((resultado, index) => (
+                        <View key={index} style={styles.resultadoContainer}>
+                            <Text style={styles.pergunta}>Pergunta {index + 1}:</Text>
+                            <Text style={styles.resultado}>
+                                Você selecionou: <Text style={resultado.correta ? styles.correto : styles.incorreto}>{resultado.respostaSelecionada}</Text>
+                            </Text>
+                            <Text style={styles.resultado}>
+                                Resultado: <Text style={resultado.correta ? styles.correto : styles.incorreto}>{resultado.correta ? 'Correto!' : 'Incorreto!'}</Text>
+                            </Text>
+                            {resultado.explicacao && (
+                                <Text style={styles.explicacao}>Explicação: {resultado.explicacao}</Text>
+                            )}
+                        </View>
+                    ))
+                ) : (
+                    <Text style={styles.mensagem}>Nenhum resultado disponível.</Text>
+                )}
+                <View style={styles.botao}>
+                    <Button
+                        title="Voltar"
+                        color="#f7a156"
+                        onPress={() => navigation.navigate("TelaInicial")}
+                    />
                 </View>
-            ))} */}
-            <View style={styles.botao}>
-                <Button
-                    title="Voltar"
-                    color="#523C20"
-                    onPress={() => navigation.navigate("TelaInicial")}
-                />
             </View>
-        </View>
+        </ScrollView>
     );
 }
 
@@ -464,30 +507,30 @@ export default function App() {
                     name="TelaInicial"
                     component={TelaInicial}
                     options={{ title: "Home" }}
-                ></PilhasTelas.Screen>
+                />
                 <PilhasTelas.Screen
                     name="VisualizarQuizBrasil"
                     component={VisualizarQuizBrasil}
                     options={{ title: "Quiz" }}
-                ></PilhasTelas.Screen>
+                />
                 <PilhasTelas.Screen
                     name="VisualizarQuizRussia"
                     component={VisualizarQuizRussia}
                     options={{ title: "Quiz" }}
-                ></PilhasTelas.Screen>
+                />
                 <PilhasTelas.Screen
                     name="VisualizarQuizJapao"
                     component={VisualizarQuizJapao}
                     options={{ title: "Quiz" }}
-                ></PilhasTelas.Screen>
+                />
                 <PilhasTelas.Screen
                     name="VisualizarResultado"
                     component={VisualizarResultado}
                     options={{ title: "Resultado" }}
-                ></PilhasTelas.Screen>
+                />
             </PilhasTelas.Navigator>
         </NavigationContainer>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -495,7 +538,6 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
         backgroundColor: '#fff',
-
     },
     container1: {
         backgroundColor: '#fff',
@@ -504,7 +546,7 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 20,
-        textAlign: 'center'
+        textAlign: 'center',
     },
     cardContainer: {
         marginBottom: 20,
@@ -512,7 +554,7 @@ const styles = StyleSheet.create({
     pergunta: {
         fontSize: 18,
         marginBottom: 10,
-        textAlign: 'center'
+        textAlign: 'center',
     },
     image: {
         width: '100%',
@@ -545,13 +587,18 @@ const styles = StyleSheet.create({
         color: 'red',
         fontWeight: 'bold',
     },
+    explicacao: {
+        fontSize: 16,
+        marginTop: 5,
+        color: 'blue',
+    },
     backgroundInicial: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
     containerInicial: {
-        backgroundColor: 'rgba(255, 255, 255, 0.8)', // Fundo semi-transparente para melhor legibilidade
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
         padding: 20,
         borderRadius: 10,
         alignItems: 'center',
@@ -569,7 +616,7 @@ const styles = StyleSheet.create({
     },
     botao: {
         alignItems: "center",
-        justifyContent: "rigth",
+        justifyContent: "center",
         marginBottom: 10
     }
 });
